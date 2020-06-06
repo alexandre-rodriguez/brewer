@@ -39,7 +39,10 @@
 		
 		<!-- jcl-over-slf4j -->
 		<jcl-over-slf4j.version>1.7.30</jcl-over-slf4j.version>
-	
+		
+		<!-- JPA / Hibernate -->
+		<hibernate.version>5.4.17.Final</hibernate.version>
+		
 	</properties>
 
 	<build>
@@ -143,7 +146,21 @@
 		    <artifactId>jcl-over-slf4j</artifactId>
 		    <version>${jcl-over-slf4j.version}</version>
 		</dependency>
+		
+		<!-- JPA / HIbernate  -->
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-entitymanager</artifactId>
+		    <version>${hibernate.version}</version>
+		</dependency>
 
+		<!-- Hibernate - Java 8 support -->
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-java8</artifactId>
+		    <version>${hibernate.version}</version>
+		</dependency>
+		
 
 	</dependencies>
 
