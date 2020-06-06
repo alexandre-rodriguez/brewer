@@ -6,6 +6,7 @@
 
 <head>
 	<title>Cadastro de usuário</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/vendors/bootstrap-switch.min.css}"/>
 </head>
 
 <section layout:fragment="conteudo">
@@ -54,9 +55,8 @@
 				
 				<div class="col-sm-3 form-group">
 					<label for="status">Status</label>
-					<div class="checkbox">
-	  					<input type="checkbox" value="" id="status">
-	  					<label>Ativo</label>
+					<div>
+	  					<input type="checkbox" class="js-status" data-size="small" data-off-color="danger" data-on-text="Ativo" data-off-text="Inativo">
 					</div>		
 				</div>	
 				
@@ -87,5 +87,12 @@
 	
 	<div th:replace="estilo/CadastroRapidoEstilo :: modal"></div>
 </section>
+
+<th:block  layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/bootstrap-switch.min.js}"></script>
+	<script>
+		$('.js-status').bootstrapSwitch();
+	</script>
+</th:block>
 		
 </html>
