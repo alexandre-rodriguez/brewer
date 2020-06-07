@@ -45,6 +45,9 @@
 		<!-- JPA / Hibernate -->
 		<hibernate.version>5.4.17.Final</hibernate.version>
 
+		<!-- Spring Data JPA -->
+		<spring-data-jpa.version>1.11.11.RELEASE</spring-data-jpa.version>
+
 	</properties>
 
 	<build>
@@ -178,6 +181,13 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql-connector-java.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- Spring Data JPA -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jpa</artifactId>
+			<version>${spring-data-jpa.version}</version>
 		</dependency>
 
 	</dependencies>
