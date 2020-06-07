@@ -20,7 +20,7 @@ public class CervejasController {
 
 	@RequestMapping("/cervejas/novo")
 	public String novo(Cerveja cerveja) {
-		cervejas.findAll();
+		cervejas.findBySkuIgnoreCase("AA1111");
 		
 		return "cerveja/CadastroCerveja";
 	}
