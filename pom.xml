@@ -46,7 +46,7 @@
 		<hibernate.version>5.4.17.Final</hibernate.version>
 
 		<!-- Spring Data JPA -->
-		<spring-data-jpa.version>1.11.11.RELEASE</spring-data-jpa.version>
+		<spring-data-jpa.version>1.11.23.RELEASE</spring-data-jpa.version>
 		
 		<!-- Jackson - JSON -->
 		<jackson-core.version>2.11.0</jackson-core.version>
