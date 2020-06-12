@@ -19,14 +19,18 @@ Brewer.UploadFoto = (function() {
 				filelimit: 1,
 				allow: '*.(jpg|jpeg|png)',
 				action: this.containerFotoCerveja.data('url-fotos'),
-				complete: onUploadComplete.bind(this)
+				complete: onUploadCompleto.bind(this)
 		};
 		
 		UIkit.uploadSelect($('#upload-select'), settings);
 		UIkit.uploadDrop(this.uploadDrop, settings);
+		
+		if(this.inputNomeFoto.val()) {
+			onUploadCompleto.call(this, {nome: this.inputNomeFoto.val(), contentType: this.inputContentType.val() });
+		}
 	}
 	
-	function onUploadComplete(resposta) {
+	function onUploadCompleto(resposta) {
 		this.inputNomeFoto.val(resposta.nome);
 		this.inputContentType.val(resposta.contentType);
 		
