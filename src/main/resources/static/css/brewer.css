@@ -113,4 +113,11 @@
 	width: 80px;
 }
 
+/* Colunas - Pesquisa de Estilos */
+.table-etilos-col-codigo {
+	width: 80px;
+}
 
+.table-estilos-col-acoes {
+	width: 80px;
+}
