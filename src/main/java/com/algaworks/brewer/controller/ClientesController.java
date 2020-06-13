@@ -6,25 +6,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.algaworks.brewer.model.Cliente;
+import com.algaworks.brewer.model.TipoPessoa;
 
 @Controller
+@RequestMapping("/clientes")
 public class ClientesController {
 
-	@RequestMapping("/clientes/novo")
-	public String novo(Cliente cliente) {
-		return "cliente/CadastroCliente";
+	@RequestMapping("/novo")
+	public ModelAndView novo(Cliente cliente) {
+		ModelAndView mv = new ModelAndView("cliente/CadastroCliente");
+		mv.addObject("tiposPessoa", TipoPessoa.values());
+		return mv;
 	}
 	
 	@RequestMapping(value = "/clientes/novo", method = RequestMethod.POST)
-	public String cadastrar(@Valid Cliente cliente, BindingResult result, RedirectAttributes attributes) {
+	public ModelAndView cadastrar(@Valid Cliente cliente, BindingResult result, RedirectAttributes attributes) {
 		if(result.hasErrors()) {
 			return novo(cliente);
 		}
 		
 		attributes.addFlashAttribute("mensagem", "Cliente salvo com sucesso!");
-		return "redirect:/cliente/novo";
+		return new ModelAndView("redirect:/cliente/novo");
 	}
 }
