@@ -83,4 +83,8 @@ public class Cidade implements Serializable{
 		return true;
 	}
 	
+	
+	public boolean temEstado() {
+		return estado != null;
+	}
 }
