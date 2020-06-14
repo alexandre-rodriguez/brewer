@@ -54,9 +54,12 @@
 		<!-- thumbnailator - Gerar Thumbnail -->
 		<!-- https://github.com/coobird/thumbnailator -->
 		<thumbnailator.version>0.4.11</thumbnailator.version>
-		
+
 		<!-- Thymeleaf extras data attribute -->
 		<thymeleaf-extras-data-attribute.version>2.0.1</thymeleaf-extras-data-attribute.version>
+
+		<!-- Cache - Guava -->
+		<guava.version>29.0-jre</guava.version>
 	</properties>
 
 	<build>
@@ -220,6 +223,18 @@
 			<version>${thymeleaf-extras-data-attribute.version}</version>
 		</dependency>
 
+		<!-- Cache - Guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+
+		<!-- Spring Context Support -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
 
 	</dependencies>
 
