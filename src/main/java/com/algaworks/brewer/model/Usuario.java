@@ -16,7 +16,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.algaworks.brewer.validation.AtributoConfirmarcao;
 
@@ -46,7 +45,7 @@ public class Usuario implements Serializable {
 
 	private Boolean ativo;
 
-	@NotNull(message = "Selecione pelo menos um grupo")
+	// @NotNull(message = "Selecione pelo menos um grupo")
 	@ManyToMany
 	@JoinTable(name = "usuario_grupo", 
 		joinColumns = @JoinColumn(name = "codigo_usuario"),
