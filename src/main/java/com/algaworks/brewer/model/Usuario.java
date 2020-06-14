@@ -144,6 +144,10 @@ public class Usuario implements Serializable {
 			return false;
 		return true;
 	}
+	
+	public boolean isNovo() {
+		return codigo ==  null;
+	}
 
 
 }
