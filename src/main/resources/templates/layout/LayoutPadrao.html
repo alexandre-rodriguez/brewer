@@ -26,6 +26,8 @@
 		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
 </head>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+<input type="hidden" name="_csrf_header" th:value="${_csrf.headerName}"/>
 
 <body>
 
