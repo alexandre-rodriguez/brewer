@@ -92,9 +92,9 @@ public class CervejasImpl implements CervejasQueries{
 	@Override
 	public List<CervejaDTO> porSkuOuNome(String skuOuNome) {
 		String jpql = "select new com.algaworks.brewer.dto.CervejaDTO(codigo, sku, nome, origem, valor, foto) " +
-				"from Cerveja where lower(sku) like :skuOuNome or lower(nome) like : skuOuNome";
+				"from Cerveja where lower(sku) like lower(:skuOuNome) or lower(nome) like lower(:skuOuNome)";
 		List<CervejaDTO> cervejasFiltradas = manager.createQuery(jpql, CervejaDTO.class)
-				.setParameter("skuOuNome", skuOuNome.toLowerCase() + "%")
+				.setParameter("skuOuNome", skuOuNome + "%")
 				.getResultList();
 		return cervejasFiltradas;
 	}
