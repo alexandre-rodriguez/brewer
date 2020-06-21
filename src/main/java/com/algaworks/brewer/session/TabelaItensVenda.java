@@ -37,5 +37,9 @@ public class TabelaItensVenda {
 		return itens.size();
 	}
 
+	public List<ItemVenda> getItens() {
+		return itens;
+	}
+
 	
 }
