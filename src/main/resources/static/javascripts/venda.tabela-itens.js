@@ -26,6 +26,7 @@ Brewer.TabelaItens = (function() {
 		
 		$('.js-tabela-cerveja-quantidade-item').on('change', onQuantidadeItemAlterado.bind(this));
 		$('.js-tabela-item').on('dblclick', onDoubleClick);
+		$('.js-exclusao-item-btn').on('click', onExclusaoItemClick.bind(this));
 	}
 	
 	function onQuantidadeItemAlterado(evento) {
@@ -48,6 +49,17 @@ Brewer.TabelaItens = (function() {
 		//var item = $(evento.currentTarget);
 		//item.toggleClass('solicitando-exclusao');
 		$(this).toggleClass('solicitando-exclusao');
+	}
+	
+	function onExclusaoItemClick(evento) {
+		var codigoCerveja = $(evento.target).data('codigo-cerveja');
+		
+		var resposta = $.ajax({
+			url: 'item/' + codigoCerveja,
+			method: 'DELETE'
+		});
+		
+		resposta.done(onItemAtualizadoNoServidor.bind(this));
 	}
 	
 	return TabelaItens;
