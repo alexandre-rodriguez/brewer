@@ -2,6 +2,10 @@ package com.algaworks.brewer.model;
 
 import java.math.BigDecimal;
 
+import org.springframework.stereotype.Component;
+
+
+@Component
 public class ItemVenda {
 	
 	private Long codigo;
