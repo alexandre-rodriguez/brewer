@@ -1,21 +1,21 @@
 /*
-########################################
+######################
 # UTILIDADES
-########################################
+######################
 */
 .bw-glyphicon-large {
 	font-size: 18px;
 }
 
-.bw-required > .control-label:after{
-	content: "*"
+.bw-required > .control-label:after {
+	content: "*";
 }
 
 
 /*
-########################################
+######################
 # COMPONENTES
-########################################
+######################
 */
 
 /* Field Action */
@@ -26,7 +26,6 @@
 .bw-field-action__icon {
 	margin: 6px 0 0 5px;
 }
-
 
 /* Upload */
 .bw-upload {
@@ -86,7 +85,6 @@
 	width: 80px;
 }
 
-
 /* Colunas - Pesquisa de Cervejas */
 .table-cervejas-col-foto {
 	min-width: 50px;
@@ -120,11 +118,7 @@
 }
 
 /* Colunas - Pesquisa de Estilos */
-.table-etilos-col-codigo {
-	width: 80px;
-}
-
-.table-estilos-col-acoes {
+.table-estilos-col-codigo {
 	width: 80px;
 }
 
@@ -163,7 +157,7 @@
 	text-align: right;
 }
 
-/* Colunas - Pequisa de usuários */
+/* Colunas - Pesquisa de usuários */
 .table-usuarios-col-status {
 	width: 30px;
 	text-align: center;
@@ -184,6 +178,7 @@
 	font-weight: 300;
 	color: #555;
 }
+
 
 /*
 ######################################
@@ -279,7 +274,41 @@
 	font-size: 1.6em;
 }
 
+.bw-tabela-item__painel-exclusao {
+    position: absolute;
+    top: 0;
+    right: 100000px;
+	height: 100%;
+    width: 50%;
+    
+    text-align: center;
+    padding-top: 35px;
+    
+	background-color: #f0ad4e;
+	
+	opacity: 0;
+	transition: opacity 0.5s;
+}
+
+.solicitando-exclusao .bw-tabela-item__painel-exclusao {
+	right: 0;
+	opacity: 1;
+}
+
+.bw-tabela-item__titulo-exclusao {
+    display: block;
+    margin-bottom: 5px;
+    
+	color: #fff;
+    font-size: 1.3em;
+}
+
 @media (min-width: 768px) { /* screen-sm-min */
+	.bw-tabela-item__painel-exclusao {
+		width: 40%;
+		padding-top: 10px;
+	}
+	
 	.bw-tabela-item__coluna {
 		float: left;
 		margin-left: 0px;
