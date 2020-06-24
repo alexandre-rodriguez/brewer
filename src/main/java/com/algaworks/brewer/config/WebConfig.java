@@ -131,7 +131,7 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	public CacheManager cacheManager() {
 		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
 				.maximumSize(3)
-				.expireAfterAccess(20, TimeUnit.SECONDS);
+				.expireAfterAccess(20, TimeUnit.MINUTES);
 		
 		GuavaCacheManager cacheManager = new GuavaCacheManager();
 		cacheManager.setCacheBuilder(cacheBuilder);
