@@ -191,13 +191,15 @@ public class Venda {
 		this.itens.forEach(i -> i.setVenda(this));
 	}
 	
-	public void calcularValorTotal() {
-		BigDecimal valorTotalItens = getItens().stream()
+	public BigDecimal getValorTotalItens() {
+		return getItens().stream()
 				.map(ItemVenda::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
-		
-		this.valorTotal = calcularValorTotal(valorTotalItens, getValorFrete(), getValorDesconto());
+	}
+	
+	public void calcularValorTotal() {
+		this.valorTotal = calcularValorTotal(getValorTotalItens(), getValorFrete(), getValorDesconto());
 	}
 
 	@Override
