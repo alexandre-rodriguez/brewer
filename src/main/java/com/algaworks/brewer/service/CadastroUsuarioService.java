@@ -24,20 +24,17 @@ public class CadastroUsuarioService {
 	
 	@Transactional
 	public void salvar(Usuario usuario) {
-		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
-		if (usuarioExistente.isPresent()) {
-			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
-		}
 		
-		if (usuario.isNovo() && StringUtils.isEmpty(usuario.getSenha())) {
-			throw new SenhaObrigatoriaUsuarioException("Senha é obrigatória para novo usuário.");
-		}
+		validaEmailJaCadastrado(usuario);
 		
 		if (usuario.isNovo()) {
-			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
-			usuario.setConfirmacaoSenha(usuario.getSenha());
+			validaUsuarioNovo(usuario);
+		} else {
+			validaUsuarioExistente(usuario);
 		}
 		
+		usuario.setConfirmacaoSenha(usuario.getSenha());
+				
 		usuarios.save(usuario);
 	}
 
@@ -45,5 +42,36 @@ public class CadastroUsuarioService {
 	public void alterarStatus(Long[] codigos, StatusUsuario statusUsuario) {
 		statusUsuario.executar(codigos, usuarios);
 	}
+
+	private void validaUsuarioExistente(Usuario usuario) {
+		Usuario usuarioExistente = usuarios.findOne(usuario.getCodigo());
+		
+		if (!StringUtils.isEmpty(usuario.getSenha())) {
+			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
+		} else {
+			usuario.setSenha(usuarioExistente.getSenha());
+		}
+		
+		if (usuario.getAtivo() == null) {
+			usuario.setAtivo(usuarioExistente.getAtivo());
+		}
+	}
+
+	private void validaUsuarioNovo(Usuario usuario) {
+		if (StringUtils.isEmpty(usuario.getSenha())) {
+			throw new SenhaObrigatoriaUsuarioException("Senha é obrigatória para novo usuário.");
+		}
+		
+		usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
+	}
+	
+	private void validaEmailJaCadastrado(Usuario usuario) {
+		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
+		
+		if (usuarioExistente.isPresent() && !usuarioExistente.get().equals(usuario)) {
+			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
+		}	
+	}
+
 	
 }

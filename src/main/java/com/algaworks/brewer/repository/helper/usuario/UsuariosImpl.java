@@ -68,6 +68,17 @@ public class UsuariosImpl implements UsuariosQueries {
 		return new PageImpl<>(filtrados, pageable, total(filtro));
 	}
 	
+	@Transactional(readOnly = true)
+	@Override
+	public Usuario buscarComGrupos(Long codigo) {
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
+		criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
+		criteria.add(Restrictions.eq("codigo", codigo));
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		
+		return (Usuario) criteria.uniqueResult();
+	}
+	
 	private Long total(UsuarioFilter filtro) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
 		adicionarFiltro(filtro, criteria);
