@@ -2,6 +2,7 @@ package com.algaworks.brewer.service;
 
 import java.util.Optional;
 
+import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.algaworks.brewer.model.Estilo;
 import com.algaworks.brewer.repository.Estilos;
+import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.NomeEstiloJaCadastradoException;
 
 @Service
@@ -27,4 +29,15 @@ public class CadastroEstiloService {
 		
 		return estilos.saveAndFlush(estilo);
 	}
+	
+	@Transactional
+	public void excluir(Estilo estilo) {
+		try {
+			this.estilos.delete(estilo);
+			this.estilos.flush();
+		} catch (PersistenceException e) {
+			throw new ImpossivelExcluirEntidadeException("Impossível apagar estilo. Já está atrelado a alguma cerveja.");
+		}
+	}
+	
 }

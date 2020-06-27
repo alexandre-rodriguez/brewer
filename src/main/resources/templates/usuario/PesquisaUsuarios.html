@@ -115,7 +115,14 @@
 							<a class="btn  btn-link  btn-xs js-tooltip" title="Editar" th:href="@{/usuarios/{codigo}(codigo=${usuario.codigo})}"> 
 								<i class="glyphicon glyphicon-pencil"></i>
 							</a>
-							<a class="btn  btn-link  btn-xs js-tooltip" title="Excluir">
+							<a class="btn  btn-link  btn-xs disabled" title="Excluir" href="#"
+								th:if="${#authentication.principal.usuario.codigo == usuario.codigo}">
+								<i class="glyphicon glyphicon-remove"></i>
+							</a>
+							<a class="btn  btn-link  btn-xs js-exclusao-btn" title="Excluir" href="#" 
+									data:url="@{/usuarios/{codigo}(codigo=${usuario.codigo})}"
+									data:objeto="${usuario.nome}"
+									th:unless="${#authentication.principal.usuario.codigo == usuario.codigo}">
 								<i class="glyphicon glyphicon-remove"></i>
 							</a>
 						</td>

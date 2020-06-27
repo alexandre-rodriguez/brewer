@@ -87,4 +87,9 @@ public class Cidade implements Serializable{
 	public boolean temEstado() {
 		return estado != null;
 	}
+	
+	public boolean isNova() {
+		return this.codigo == null;
+	}
+	
 }

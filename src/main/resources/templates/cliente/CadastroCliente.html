@@ -16,7 +16,8 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-sm-10">		
-					<h1>Cadastro de cliente</h1>
+					<h1 th:if="${cliente.novo}">Cadastro de cliente</h1>
+					<h1 th:unless="${cliente.novo}" th:text="|Edição de ${cliente.nome}|">Edição de cliente</h1>
 				</div>			
 				<div class="col-sm-2">
 					<div class="aw-page-header-controls">
@@ -32,8 +33,11 @@
 
 	<div class="container-fluid">
 	
-		<form method="POST" th:object="${cliente}" class="form-vertical  js-form-loading" th:action="@{/clientes/novo}">
+		<form method="POST" th:object="${cliente}" class="form-vertical  js-form-loading" 
+				th:action="${cliente.novo} ? @{/clientes/novo} : @{/clientes/{codigo}(codigo=${cliente.codigo})}">
 			<brewer:message/>
+			
+			<input type="hidden" th:field="*{codigo}" /> 
 					
 			<div class="row">
 				<div class="col-sm-12 form-group bw-required"  brewer:classforerror="nome">

@@ -1,6 +1,5 @@
 package com.algaworks.brewer.repository.helper.cerveja;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -20,7 +19,6 @@ import org.springframework.util.StringUtils;
 
 import com.algaworks.brewer.dto.CervejaDTO;
 import com.algaworks.brewer.model.Cerveja;
-import com.algaworks.brewer.model.Origem;
 import com.algaworks.brewer.repository.filter.CervejaFilter;
 import com.algaworks.brewer.repository.paginacao.PaginacaoUtil;
 
