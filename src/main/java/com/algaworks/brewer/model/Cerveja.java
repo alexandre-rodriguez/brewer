@@ -37,10 +37,10 @@ public class Cerveja {
 	
 	//@Pattern(regexp = "([a-zA-Z]{2}\\d{4})?", message = "SKU deve seguir o padrão XX9999")
 	@SKU
-	@NotBlank(message = "SKU é obrigatório")
+	@NotBlank
 	private String sku;
 	
-	@NotBlank(message = "Nome é obrigatório")
+	@NotBlank
 	private String nome;
 	
 	@NotBlank(message = "A descrição é obrigatória")
