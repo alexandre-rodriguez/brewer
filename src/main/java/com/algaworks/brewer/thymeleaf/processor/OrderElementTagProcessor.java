@@ -1,5 +1,6 @@
 package com.algaworks.brewer.thymeleaf.processor;
 
+import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.model.IAttribute;
 import org.thymeleaf.model.IModel;
@@ -7,6 +8,9 @@ import org.thymeleaf.model.IModelFactory;
 import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.processor.element.AbstractElementTagProcessor;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
+import org.thymeleaf.standard.expression.IStandardExpression;
+import org.thymeleaf.standard.expression.IStandardExpressionParser;
+import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.templatemode.TemplateMode;
 
 public class OrderElementTagProcessor extends AbstractElementTagProcessor {
@@ -27,10 +31,15 @@ public class OrderElementTagProcessor extends AbstractElementTagProcessor {
 		IAttribute field = tag.getAttribute("field");
 		IAttribute text = tag.getAttribute("text");
 		
+		IEngineConfiguration configuration = context.getConfiguration();
+		IStandardExpressionParser parser = StandardExpressions.getExpressionParser(configuration);
+		IStandardExpression expression = parser.parseExpression(context, text.getValue());
+		String traducao = (String) expression.execute(context);
+		
 		IModel model = modelFactory.createModel();
 		model.add(modelFactory.createStandaloneElementTag("th:block", 
 				"th:replace", 
-				String.format("fragments/Ordenacao :: order (%s, %s, '%s')", page.getValue(), field.getValue(), text.getValue())));
+				String.format("fragments/Ordenacao :: order (%s, %s, '%s')", page.getValue(), field.getValue(), traducao)));
 		
 		structureHandler.replaceWith(model, true);
 	}
