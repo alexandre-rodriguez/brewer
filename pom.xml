@@ -75,12 +75,15 @@
 
 		<!-- Java Mail -->
 		<javax.mail.version>1.6.2</javax.mail.version>
+		
+		<!-- AWS SDK - S3 -->
+		<aws-java-sdk-s3.version>1.11.811</aws-java-sdk-s3.version>
 
 	</properties>
 
 	<build>
 		<finalName>${artifactId}</finalName>
-		
+
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -296,6 +299,12 @@
 			<version>${javax.mail.version}</version>
 		</dependency>
 
+		<!-- AWS SDK - S3 -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws-java-sdk-s3.version}</version>
+		</dependency>
 
 
 	</dependencies>
