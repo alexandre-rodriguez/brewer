@@ -28,7 +28,7 @@ public class MailConfig {
 		mailSender.setHost("smtp.gmail.com");
 		mailSender.setPort(587);
 		mailSender.setUsername(env.getProperty("email.username"));
-		mailSender.setPassword(env.getProperty("email.password"));
+		mailSender.setPassword(env.getProperty("MAIL_PASSWORD"));
 		
         Properties properties = new Properties();
         properties.put("mail.transport.protocol", "smtp");
