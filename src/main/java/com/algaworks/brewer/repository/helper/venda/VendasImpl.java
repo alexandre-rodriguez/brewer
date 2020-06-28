@@ -65,7 +65,7 @@ public class VendasImpl implements VendasQueries {
 	
 	@Override
 	public BigDecimal valorTotalNoAno() {
-		Optional<BigDecimal> optional = Optional.of(
+		Optional<BigDecimal> optional = Optional.ofNullable(
 				manager.createQuery("select sum(valorTotal) from Venda where year(dataCriacao) = :ano and status = :status", BigDecimal.class)
 					.setParameter("ano", Year.now().getValue())
 					.setParameter("status", StatusVenda.EMITIDA)
@@ -76,7 +76,7 @@ public class VendasImpl implements VendasQueries {
 	
 	@Override
 	public BigDecimal valorTotalNoMes() {
-		Optional<BigDecimal> optional = Optional.of(
+		Optional<BigDecimal> optional = Optional.ofNullable(
 				manager.createQuery("select sum(valorTotal) from Venda where month(dataCriacao) = :mes and status = :status", BigDecimal.class)
 					.setParameter("mes", MonthDay.now().getMonthValue())
 					.setParameter("status", StatusVenda.EMITIDA)
@@ -87,7 +87,7 @@ public class VendasImpl implements VendasQueries {
 	
 	@Override
 	public BigDecimal valorTicketMedioNoAno() {
-		Optional<BigDecimal> optional = Optional.of(
+		Optional<BigDecimal> optional = Optional.ofNullable(
 				manager.createQuery("select sum(valorTotal)/count(*) from Venda where year(dataCriacao) = :ano and status = :status", BigDecimal.class)
 					.setParameter("ano", Year.now().getValue())
 					.setParameter("status", StatusVenda.EMITIDA)
