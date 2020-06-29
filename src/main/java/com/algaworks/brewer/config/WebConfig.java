@@ -25,7 +25,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -52,7 +52,7 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
 @EnableSpringDataWebSupport
 @EnableCaching
 @EnableAsync
-public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware{
+public class WebConfig  implements ApplicationContextAware, WebMvcConfigurer{
 	private ApplicationContext applicationContext;
 
 	@Override
