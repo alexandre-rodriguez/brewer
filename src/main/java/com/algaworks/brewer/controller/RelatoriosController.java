@@ -1,12 +1,10 @@
 package com.algaworks.brewer.controller;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.apache.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.algaworks.brewer.dto.PeriodoRelatorio;
+import com.algaworks.brewer.service.RelatorioService;
 
 @Controller
 @RequestMapping("/relatorios")
 public class RelatoriosController {
+	
+	@Autowired
+	private RelatorioService relatorioService;
 	
 	@GetMapping("/vendasEmitidas")
 	public ModelAndView relatorioVendasEmitidas() {
@@ -27,20 +29,12 @@ public class RelatoriosController {
 	}
 	
 	@PostMapping("/vendasEmitidas")
-	public ModelAndView gerarRelatoriosVendasEmitidas(PeriodoRelatorio periodoRelatorio) {
-		Map<String, Object> parametros = new HashMap<>();
+	public ResponseEntity<byte[]> gerarRelatoriosVendasEmitidas(PeriodoRelatorio periodoRelatorio) throws Exception {
+		byte[] relatorio = relatorioService.gerarRelatoriosVendasEmitidas(periodoRelatorio);
 		
-		
-		Date dataInicio = Date.from(LocalDateTime.of(periodoRelatorio.getDataInicio(), LocalTime.of(0, 0, 0))
-				.atZone(ZoneId.systemDefault()).toInstant());
-		Date dataFim = Date.from(LocalDateTime.of(periodoRelatorio.getDataFim(), LocalTime.of(23, 59, 59))
-				.atZone(ZoneId.systemDefault()).toInstant());
-		
-		parametros.put("format", "pdf");
-		parametros.put("data_inicio", dataInicio);
-		parametros.put("data_fim", dataFim);
-		
-		return new ModelAndView("relatorio_vendas_emitidas", parametros);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(relatorio);
 	}
 
 }

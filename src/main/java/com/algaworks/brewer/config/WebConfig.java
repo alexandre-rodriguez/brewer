@@ -59,19 +59,7 @@ public class WebConfig  implements ApplicationContextAware, WebMvcConfigurer{
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
-	
 
-//	@Bean
-//	public ViewResolver jasperReportsViewResolver(DataSource datasource) {
-//		JasperReportsViewResolver resolver = new JasperReportsViewResolver();
-//		resolver.setPrefix("classpath:/relatorios/");
-//		resolver.setSuffix(".jasper");
-//		resolver.setViewNames("relatorio_*");
-//		resolver.setViewClass(JasperReportsMultiFormatView.class);
-//		resolver.setJdbcDataSource(datasource);
-//		resolver.setOrder(0);
-//		return resolver;
-//	}
 	
 	@Bean
 	public ViewResolver viewResolver() {
