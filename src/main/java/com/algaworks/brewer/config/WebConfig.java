@@ -2,13 +2,11 @@ package com.algaworks.brewer.config;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.guava.GuavaCacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -19,18 +17,15 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.data.repository.support.DomainClassConverter;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
-import org.springframework.format.number.NumberStyleFormatter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.i18n.FixedLocaleResolver;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -48,7 +43,6 @@ import com.algaworks.brewer.controller.converter.GrupoConverter;
 import com.algaworks.brewer.session.TabelasItensSession;
 import com.algaworks.brewer.thymeleaf.BrewerDialect;
 import com.github.mxab.thymeleaf.extras.dataattribute.dialect.DataAttributeDialect;
-import com.google.common.cache.CacheBuilder;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
@@ -66,11 +60,25 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		this.applicationContext = applicationContext;
 	}
 	
+
+//	@Bean
+//	public ViewResolver jasperReportsViewResolver(DataSource datasource) {
+//		JasperReportsViewResolver resolver = new JasperReportsViewResolver();
+//		resolver.setPrefix("classpath:/relatorios/");
+//		resolver.setSuffix(".jasper");
+//		resolver.setViewNames("relatorio_*");
+//		resolver.setViewClass(JasperReportsMultiFormatView.class);
+//		resolver.setJdbcDataSource(datasource);
+//		resolver.setOrder(0);
+//		return resolver;
+//	}
+	
 	@Bean
 	public ViewResolver viewResolver() {
 		ThymeleafViewResolver resolver = new ThymeleafViewResolver();
 		resolver.setTemplateEngine(templateEngine());
 		resolver.setCharacterEncoding("UTF-8");
+		resolver.setOrder(1);
 		return resolver;
 	}
 	
@@ -134,14 +142,16 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	
 	@Bean
 	public CacheManager cacheManager() {
-		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-				.maximumSize(3)
-				.expireAfterAccess(20, TimeUnit.MINUTES);
+//		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+//				.maximumSize(3)
+//				.expireAfterAccess(20, TimeUnit.MINUTES);
+//		
+//		GuavaCacheManager cacheManager = new GuavaCacheManager();
+//		cacheManager.setCacheBuilder(cacheBuilder);
+//		
+//		return cacheManager;
 		
-		GuavaCacheManager cacheManager = new GuavaCacheManager();
-		cacheManager.setCacheBuilder(cacheBuilder);
-		
-		return cacheManager;
+		return new ConcurrentMapCacheManager();
 	}
 	
 	@Bean
