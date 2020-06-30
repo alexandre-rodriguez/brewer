@@ -57,7 +57,7 @@ public class CadastroUsuarioService {
 	}
 
 	private void validaUsuarioExistente(Usuario usuario) {
-		Usuario usuarioExistente = usuarios.findOne(usuario.getCodigo());
+		Usuario usuarioExistente = usuarios.getOne(usuario.getCodigo());
 		
 		if (!StringUtils.isEmpty(usuario.getSenha())) {
 			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
