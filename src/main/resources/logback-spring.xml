@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    
+    <logger name="com.algaworks" level="debug" />
+    
+    <springProfile name="default" >
+        <logger name="org.hibernate.SQL" level="debug" />
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace" />
+    </springProfile>
+
+</configuration>
