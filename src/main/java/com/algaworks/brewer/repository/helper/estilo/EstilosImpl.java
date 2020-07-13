@@ -1,13 +1,16 @@
 package com.algaworks.brewer.repository.helper.estilo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,28 +35,42 @@ public class EstilosImpl implements EstilosQueries{
 	@Override
 	@Transactional(readOnly=true)
 	public Page<Estilo> filtrar(EstiloFilter filtro, Pageable pageable) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Estilo.class);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Estilo> query = builder.createQuery(Estilo.class);
+		Root<Estilo> estilo = query.from(Estilo.class);
 		
-		paginacaoUtil.preparar(criteria, pageable);
+		query.select(estilo);
+		query.where(adicionarFiltro(filtro, estilo));
 		
-		adicionarFiltro(filtro, criteria);
+		TypedQuery<Estilo> typedQuery =  (TypedQuery<Estilo>) paginacaoUtil.preparar(query, estilo, pageable);
 		
-		return new PageImpl<>(criteria.list(), pageable, total(filtro));
-	}
-
-	private void adicionarFiltro(EstiloFilter filtro, Criteria criteria) {
-		if (filtro != null) {
-			if (!StringUtils.isEmpty(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-			}
-		}
+		return new PageImpl<>(typedQuery.getResultList(), pageable, total(filtro));
 	}
 	
+	private Predicate[] adicionarFiltro(EstiloFilter filtro, Root<Estilo> estilo) {
+		List<Predicate> predicateList = new ArrayList<>();
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+
+		
+		if (filtro != null) {
+			if (!StringUtils.isEmpty(filtro.getNome())) {
+				predicateList.add(builder.like(estilo.get("nome"), "%" + filtro.getNome() + "%"));
+			}
+		}
+		
+		Predicate[] predArray = new Predicate[predicateList.size()];
+		return predicateList.toArray(predArray);
+	}
+
 	private Long total(EstiloFilter filtro) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Estilo.class);
-		adicionarFiltro(filtro, criteria);
-		criteria.setProjection(Projections.rowCount());
-		return (Long) criteria.uniqueResult();
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+		Root<Estilo> estilo = query.from(Estilo.class);
+		
+		query.select(criteriaBuilder.count(estilo));
+		query.where(adicionarFiltro(filtro, estilo));
+		
+		return manager.createQuery(query).getSingleResult();
 	}
 
 }

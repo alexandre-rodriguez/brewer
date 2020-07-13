@@ -1,14 +1,17 @@
 package com.algaworks.brewer.repository.helper.cliente;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.sql.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,33 +35,50 @@ public class ClientesImpl implements ClientesQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Cliente> filtrar(ClienteFilter filtro, Pageable pageable) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cliente.class);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Cliente> query = builder.createQuery(Cliente.class);
+		Root<Cliente> cliente = query.from(Cliente.class);
 		
-		paginacaoUtil.preparar(criteria, pageable);
-		adicionarFiltro(filtro, criteria);
-		criteria.createAlias("endereco.cidade", "c", JoinType.LEFT_OUTER_JOIN);
-		criteria.createAlias("c.estado", "e", JoinType.LEFT_OUTER_JOIN);
-				
-		return new PageImpl<>(criteria.list(), pageable, total(filtro));
+		cliente.fetch("endereco", JoinType.LEFT)
+			.fetch("cidade", JoinType.LEFT)
+			.fetch("estado", JoinType.LEFT);
+		
+		query.select(cliente);
+		query.where(adicionarFiltro(filtro, cliente));
+		
+		TypedQuery<Cliente> typedQuery =  (TypedQuery<Cliente>) paginacaoUtil.preparar(query, cliente, pageable);
+		
+		return new PageImpl<>(typedQuery.getResultList(), pageable, total(filtro));
 	}
 	
 	private Long total(ClienteFilter filtro) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cliente.class);
-		adicionarFiltro(filtro, criteria);
-		criteria.setProjection(Projections.rowCount());
-		return (Long) criteria.uniqueResult();
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+		Root<Cliente> cliente = query.from(Cliente.class);
+		
+		query.select(criteriaBuilder.count(cliente));
+		query.where(adicionarFiltro(filtro, cliente));
+		
+		return manager.createQuery(query).getSingleResult();
 	}
 
-	private void adicionarFiltro(ClienteFilter filtro, Criteria criteria) {
+	private Predicate[] adicionarFiltro(ClienteFilter filtro, Root<Cliente> cliente) {
+		List<Predicate> predicateList = new ArrayList<>();
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+
+		
 		if (filtro != null) {
 			if (!StringUtils.isEmpty(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+				predicateList.add(builder.like(cliente.get("nome"), "%" + filtro.getNome() + "%"));
 			}
-
+			
 			if (!StringUtils.isEmpty(filtro.getCpfOuCnpj())) {
-				criteria.add(Restrictions.eq("cpfOuCnpj", filtro.getCpfOuCnpjSemFormatacao()));
+				predicateList.add(builder.equal(cliente.get("cpfOuCnpj"), filtro.getCpfOuCnpjSemFormatacao()));
 			}
 		}
+		
+		Predicate[] predArray = new Predicate[predicateList.size()];
+		return predicateList.toArray(predArray);
 	}
 
 }

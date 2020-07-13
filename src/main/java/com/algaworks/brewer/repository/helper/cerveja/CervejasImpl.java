@@ -1,15 +1,16 @@
 package com.algaworks.brewer.repository.helper.cerveja;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,45 +41,56 @@ public class CervejasImpl implements CervejasQueries{
 	@Override
 	@Transactional(readOnly=true)
 	public Page<Cerveja> filtrar(CervejaFilter filtro, Pageable pageable) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cerveja.class);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Cerveja> query = builder.createQuery(Cerveja.class);
+		Root<Cerveja> cerveja = query.from(Cerveja.class);
 		
-		paginacaoUtil.preparar(criteria, pageable);
+		query.select(cerveja);
+		query.where(adicionarFiltro(filtro, cerveja));
 		
-		adicionarFiltro(filtro, criteria);
+		TypedQuery<Cerveja> typedQuery =  (TypedQuery<Cerveja>) paginacaoUtil.preparar(query, cerveja, pageable);
 		
-		return new PageImpl<>(criteria.list(), pageable, total(filtro));
+		return new PageImpl<>(typedQuery.getResultList(), pageable, total(filtro));
 	}
 
-	private void adicionarFiltro(CervejaFilter filtro, Criteria criteria) {
+	private Predicate[] adicionarFiltro(CervejaFilter filtro, Root<Cerveja> cerveja) {
+		List<Predicate> predicateList = new ArrayList<>();
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+
+		
 		if (filtro != null) {
 			if (!StringUtils.isEmpty(filtro.getSku())) {
-				criteria.add(Restrictions.eq("sku", filtro.getSku()));
+				predicateList.add(builder.equal(cerveja.get("sku"), filtro.getSku()));
 			}
 			
 			if (!StringUtils.isEmpty(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+				predicateList.add(builder.like(cerveja.get("nome"), "%" + filtro.getNome() + "%"));
 			}
 
 			if (isEstiloPresente(filtro)) {
-				criteria.add(Restrictions.eq("estilo", filtro.getEstilo()));
+				predicateList.add(builder.equal(cerveja.get("estilo"), filtro.getEstilo()));
 			}
 
 			if (filtro.getSabor() != null) {
-				criteria.add(Restrictions.eq("sabor", filtro.getSabor()));
+				predicateList.add(builder.equal(cerveja.get("sabor"), filtro.getSabor()));
 			}
 
 			if (filtro.getOrigem() != null) {
-				criteria.add(Restrictions.eq("origem", filtro.getOrigem()));
+				predicateList.add(builder.equal(cerveja.get("origem"), filtro.getOrigem()));
 			}
 
 			if (filtro.getValorDe() != null) {
-				criteria.add(Restrictions.ge("valor", filtro.getValorDe()));
+				predicateList.add(builder.equal(cerveja.get("valor"), filtro.getValorDe()));
 			}
 
 			if (filtro.getValorAte() != null) {
-				criteria.add(Restrictions.le("valor", filtro.getValorAte()));
-			}			
+				predicateList.add(builder.equal(cerveja.get("valor"), filtro.getValorAte()));
+			}
 		}
+		
+		Predicate[] predArray = new Predicate[predicateList.size()];
+		return predicateList.toArray(predArray);
+		
 	}
 	
 	@Override
@@ -86,12 +98,16 @@ public class CervejasImpl implements CervejasQueries{
 		String query = "select new com.algaworks.brewer.dto.ValorItensEstoque(sum(valor * quantidadeEstoque), sum(quantidadeEstoque)) from Cerveja";
 		return manager.createQuery(query, ValorItensEstoque.class).getSingleResult();
 	}
-	
+		
 	private Long total(CervejaFilter filtro) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cerveja.class);
-		adicionarFiltro(filtro, criteria);
-		criteria.setProjection(Projections.rowCount());
-		return (Long) criteria.uniqueResult();
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+		Root<Cerveja> cerveja = query.from(Cerveja.class);
+		
+		query.select(criteriaBuilder.count(cerveja));
+		query.where(adicionarFiltro(filtro, cerveja));
+		
+		return manager.createQuery(query).getSingleResult();
 	}
 
 	private boolean isEstiloPresente(CervejaFilter filtro) {

@@ -1,13 +1,16 @@
 package com.algaworks.brewer.repository.helper.cidade;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,32 +34,46 @@ public class CidadesImpl implements CidadesQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Cidade> filtrar(CidadeFilter filtro, Pageable pageable) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cidade.class);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Cidade> query = builder.createQuery(Cidade.class);
+		Root<Cidade> cidade = query.from(Cidade.class);
 		
-		paginacaoUtil.preparar(criteria, pageable);
-		adicionarFiltro(filtro, criteria);
-		criteria.createAlias("estado", "e");
-				
-		return new PageImpl<>(criteria.list(), pageable, total(filtro));
+		query.select(cidade);
+		query.where(adicionarFiltro(filtro, cidade));
+		
+		TypedQuery<Cidade> typedQuery =  (TypedQuery<Cidade>) paginacaoUtil.preparar(query, cidade, pageable);
+		
+		return new PageImpl<>(typedQuery.getResultList(), pageable, total(filtro));
 	}
 	
 	private Long total(CidadeFilter filtro) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cidade.class);
-		adicionarFiltro(filtro, criteria);
-		criteria.setProjection(Projections.rowCount());
-		return (Long) criteria.uniqueResult();
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+		Root<Cidade> cidade = query.from(Cidade.class);
+		
+		query.select(criteriaBuilder.count(cidade));
+		query.where(adicionarFiltro(filtro, cidade));
+		
+		return manager.createQuery(query).getSingleResult();
 	}
 
-	private void adicionarFiltro(CidadeFilter filtro, Criteria criteria) {
+	private Predicate[] adicionarFiltro(CidadeFilter filtro, Root<Cidade> cidade) {
+		List<Predicate> predicateList = new ArrayList<>();
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+
+		
 		if (filtro != null) {
-			if (filtro.getEstado() != null) {
-				criteria.add(Restrictions.eq("estado", filtro.getEstado()));
+			if (!StringUtils.isEmpty(filtro.getNome())) {
+				predicateList.add(builder.like(cidade.get("nome"), "%" + filtro.getNome() + "%"));
 			}
 			
-			if (!StringUtils.isEmpty(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+			if (filtro.getEstado() != null) {
+				predicateList.add(builder.equal(cidade.get("estado"), filtro.getEstado()));
 			}
 		}
+		
+		Predicate[] predArray = new Predicate[predicateList.size()];
+		return predicateList.toArray(predArray);
 	}
 
 }

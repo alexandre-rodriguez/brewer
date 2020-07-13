@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/LayoutPadrao}"
-	xmlns:brewer="http://brewer.algaworks.com">
+	xmlns:brewer="http://brewer.algaworks.com"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
 
 <head>
 	<title>Pesquisa de estilos</title>
@@ -63,9 +64,9 @@
 									th:href="@{/estilos/{codigo}(codigo=${estilo.codigo})}"> 
 								<i class="glyphicon glyphicon-pencil"></i>
 							</a>
-							<a class="btn  btn-link  btn-xs js-exclusao-btn" title="Excluir"
-									data:url="@{/estilos/{codigo}(codigo=${estilo.codigo})}"
-									data:objeto="${estilo.nome}">
+							<a class="btn  btn-link  btn-xs js-exclusao-btn" title="Excluir" 
+							         data:url="@{/estilos/{codigo}(codigo=${estilo.codigo})}" 
+							         data:objeto="${estilo.nome}">
 								<i class="glyphicon glyphicon-remove"></i>
 							</a>
 						</td>

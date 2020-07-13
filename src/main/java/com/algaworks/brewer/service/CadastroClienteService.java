@@ -1,7 +1,5 @@
 package com.algaworks.brewer.service;
 
-import java.util.Optional;
-
 import javax.persistence.PersistenceException;
 
 import org.springframework.beans.factory.annotation.Autowired;

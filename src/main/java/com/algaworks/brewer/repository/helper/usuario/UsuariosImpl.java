@@ -6,17 +6,15 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
-import org.hibernate.sql.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,15 +52,21 @@ public class UsuariosImpl implements UsuariosQueries {
 				.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
 	public Page<Usuario> filtrar(UsuarioFilter filtro, Pageable pageable) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Usuario> query = builder.createQuery(Usuario.class);
+		Root<Usuario> usuario = query.from(Usuario.class);
 		
-		paginacaoUtil.preparar(criteria, pageable);
-		adicionarFiltro(filtro, criteria);
+		query.select(usuario);
+		query.where(adicionarFiltro(filtro, query, usuario));
 		
-		List<Usuario> filtrados = criteria.list();
+		TypedQuery<Usuario> typedQuery =  (TypedQuery<Usuario>) paginacaoUtil.preparar(query, usuario, pageable);
+		
+		List<Usuario> filtrados = typedQuery.getResultList();
+		
 		filtrados.forEach(u -> Hibernate.initialize(u.getGrupos()));
 		
 		return new PageImpl<>(filtrados, pageable, total(filtro));
@@ -71,48 +75,63 @@ public class UsuariosImpl implements UsuariosQueries {
 	@Transactional(readOnly = true)
 	@Override
 	public Usuario buscarComGrupos(Long codigo) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
-		criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
-		criteria.add(Restrictions.eq("codigo", codigo));
-		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Usuario> query = builder.createQuery(Usuario.class);
+		Root<Usuario> usuario = query.from(Usuario.class);
 		
-		return (Usuario) criteria.uniqueResult();
+		usuario.fetch("grupos", JoinType.LEFT);
+		
+		query.select(usuario);
+		query.distinct(true);
+		query.where(builder.equal(usuario.get("codigo"), codigo));
+		
+		TypedQuery<Usuario> typedQuery = manager.createQuery(query);
+	
+		return typedQuery.getSingleResult();	
 	}
 	
 	private Long total(UsuarioFilter filtro) {
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
-		adicionarFiltro(filtro, criteria);
-		criteria.setProjection(Projections.rowCount());
-		return (Long) criteria.uniqueResult();
+		CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+		Root<Usuario> usuario = query.from(Usuario.class);
+		
+		query.select(criteriaBuilder.count(usuario));
+		query.where(adicionarFiltro(filtro, query, usuario));
+		
+		return manager.createQuery(query).getSingleResult();
 	}
 
-	private void adicionarFiltro(UsuarioFilter filtro, Criteria criteria) {
+	private Predicate[] adicionarFiltro(UsuarioFilter filtro, CriteriaQuery<?> query, Root<Usuario> usuario) {
+		List<Predicate> predicateList = new ArrayList<>();
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+
 		
 		if (filtro != null) {
 			if (!StringUtils.isEmpty(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getEmail(), MatchMode.ANYWHERE));
+				predicateList.add(builder.like(usuario.get("nome"), "%" + filtro.getNome() + "%"));
 			}
 			
 			if (!StringUtils.isEmpty(filtro.getEmail())) {
-				criteria.add(Restrictions.ilike("email", filtro.getEmail(), MatchMode.START));
+				predicateList.add(builder.like(usuario.get("email"), filtro.getEmail() + "%"));
 			}
 			
 			if(filtro.getGrupos() != null && !filtro.getGrupos().isEmpty() ) {
-				List<Criterion> subqueries = new ArrayList<>();
-				for(Long codigoGrupo : filtro.getGrupos().parallelStream().mapToLong(Grupo::getCodigo).toArray()) {
-					DetachedCriteria dc = DetachedCriteria.forClass(UsuarioGrupo.class);
-					dc.add(Restrictions.eq("id.grupo.codigo", codigoGrupo));
-					dc.setProjection(Projections.property("id.usuario"));
-					
-					subqueries.add(Subqueries.propertyIn("codigo", dc));
-				}
 				
-				Criterion[] criterions = new Criterion[subqueries.size()];
-				criteria.add(Restrictions.and(subqueries.toArray(criterions)));
+				for(Long codigoGrupo : filtro.getGrupos().stream().mapToLong(Grupo::getCodigo).toArray()) {
+					Subquery<Integer> subquery = query.subquery(Integer.class);
+					Root<UsuarioGrupo> subqueryRoot = subquery.from(UsuarioGrupo.class);
+					
+					subquery.select(subqueryRoot.get("id").get("usuario").get("codigo"));
+					subquery.where(builder.equal(subqueryRoot.get("id").get("grupo").get("codigo"), codigoGrupo));
+					
+					predicateList.add(usuario.get("codigo").in(subquery));
+				}
 			}
 			
 		}
 		
+		Predicate[] predArray = new Predicate[predicateList.size()];
+		return predicateList.toArray(predArray);
 	}
 	
 	
